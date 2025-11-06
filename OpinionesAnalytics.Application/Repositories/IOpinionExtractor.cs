@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace OpinionesAnalytics.Application.Repositories
 {
-    internal class IOpinionExtractor
+    public interface IOpinionExtractor
     {
+        Task<IEnumerable<Opinion>> ExtractAsync(CancellationToken cancellationToken = default);
     }
 }
