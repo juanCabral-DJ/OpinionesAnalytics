@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0 d17.14
+VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpinionesAnalytics.Api", "OpinionesAnalytics.Api", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpinionesAnalytics.Persistence", "OpinionesAnalytics.Persistence\OpinionesAnalytics.Persistence.csproj", "{6814043A-20F6-4D5B-B3B4-ABC7E0B1DC56}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpinionesAnalytics.Infrastructure", "OpinionesAnalytics.Infrastructure\OpinionesAnalytics.Infrastructure.csproj", "{4B7932EA-1580-4CF7-9CB2-A44ACE029094}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpinionesAnalytics.Domain", "OpinionesAnalytics.Domain\OpinionesAnalytics.Domain.csproj", "{15E281CB-0EE2-43D3-B011-6850DEBBFC4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{4B7932EA-1580-4CF7-9CB2-A44ACE029094}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B7932EA-1580-4CF7-9CB2-A44ACE029094}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B7932EA-1580-4CF7-9CB2-A44ACE029094}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15E281CB-0EE2-43D3-B011-6850DEBBFC4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15E281CB-0EE2-43D3-B011-6850DEBBFC4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15E281CB-0EE2-43D3-B011-6850DEBBFC4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15E281CB-0EE2-43D3-B011-6850DEBBFC4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +58,7 @@ Global
 		{5D17C23E-9086-4F39-B73B-B16355CA5C1F} = {EF4AC1EA-CB76-41CC-A062-729DD5B06C9B}
 		{6814043A-20F6-4D5B-B3B4-ABC7E0B1DC56} = {08A74BC9-BDAA-4D53-A92D-B058081B867E}
 		{4B7932EA-1580-4CF7-9CB2-A44ACE029094} = {08A74BC9-BDAA-4D53-A92D-B058081B867E}
+		{15E281CB-0EE2-43D3-B011-6850DEBBFC4B} = {459D9E57-E130-47BB-AD6D-0A1812D2AF97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6023093-C6E2-4C0B-BD6C-A679ED198522}

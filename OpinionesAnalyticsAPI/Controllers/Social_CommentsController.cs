@@ -9,21 +9,21 @@ namespace OpinionesAnalyticsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class webReviewsController : ControllerBase
+    public class Social_CommentsController : ControllerBase
     {
-        private readonly ILoggerBase<webReviewsController> _Logger;
-        public readonly IWebReviewsRepository _webReviewsRepository;
+        private readonly ILoggerBase<Social_CommentsController> _Logger;
+        public readonly ISocial_CommentsRepository _Social_CommentsRepository;
 
-        public webReviewsController(IWebReviewsRepository webReviewsRepository)
+        public Social_CommentsController(ISocial_CommentsRepository Social_CommentsRepository)
         { 
-            this._webReviewsRepository = webReviewsRepository;
+            this._Social_CommentsRepository = Social_CommentsRepository;
         }
 
         // GET: api/<webReviewsController> 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var result = await _webReviewsRepository.GetReviewsAsync();
+            var result = await _Social_CommentsRepository.GetReviewsAsync();
             
             if (result.IsSuccess)
             {
