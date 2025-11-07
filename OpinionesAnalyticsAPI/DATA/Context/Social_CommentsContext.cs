@@ -10,7 +10,7 @@ namespace OpinionesAnalyticsAPI.DATA.Context
         { 
         }
 
-        public DbSet<Social_Comments> Social_Comments { get; set; }
+        public DbSet<Social_Comments> SocialComments { get; set; }
 
     }
 }

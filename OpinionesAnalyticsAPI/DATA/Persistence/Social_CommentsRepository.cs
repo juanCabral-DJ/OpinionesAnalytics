@@ -24,7 +24,7 @@ namespace OpinionesAnalyticsAPI.DATA.Persistence
             try
             {
                 _logger.LogInformation("Retrieving Social_Comments entities");
-                var webReviews = await _Context.Social_Comments.ToListAsync();
+                var webReviews = await _Context.SocialComments.ToListAsync();
 
                 result = OperationResult.Success("Retrieving Social_Comments entities", webReviews);
             }
