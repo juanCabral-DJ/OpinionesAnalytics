@@ -6,4 +6,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\API\" />
+    <Folder Include="Repositories\Csv\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpinionesAnalytics.Application\OpinionesAnalytics.Application.csproj" />
+    <ProjectReference Include="..\OpinionesAnalytics.Domain\OpinionesAnalytics.Domain.csproj" />
+    <ProjectReference Include="..\OpinionesAnalytics.Infrastructure\OpinionesAnalytics.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
