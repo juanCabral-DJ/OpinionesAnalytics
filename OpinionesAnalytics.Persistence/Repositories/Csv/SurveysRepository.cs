@@ -15,9 +15,6 @@ namespace OpinionesAnalytics.Persistence.Repositories.Csv
     public class SurveysRepository : IOpinionExtractor<surveys>
     {
          
-        public readonly ILoggerBase<SurveysRepository> _Logger;
-        public readonly string filepath; 
-
         public SurveysRepository(ILoggerBase<SurveysRepository> logger, IConfiguration config)
         {
             _Logger = logger;
