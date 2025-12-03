@@ -20,7 +20,7 @@ namespace OpinionesAnalytics.Persistence.Repositories.Db
             this._context = context;
             _logger = logger;
         }
-        public async Task<IEnumerable<WebReviews>> ExtractAsync(string filepath = "")
+        public async Task<IEnumerable<WebReviews>> ExtractAsync()
         {
             var reviews = new List<WebReviews>();
             try

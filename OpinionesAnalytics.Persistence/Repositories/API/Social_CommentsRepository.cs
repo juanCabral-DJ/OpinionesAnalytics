@@ -24,7 +24,7 @@ namespace OpinionesAnalytics.Persistence.Repositories.API
             _apiUrl = config["ExternalSources:Social_CommentsApi"];
         }
 
-        public async Task<IEnumerable<Social_Comments>> ExtractAsync(string filepath = "")
+        public async Task<IEnumerable<Social_Comments>> ExtractAsync()
         {
             var comments = new List<Social_Comments>();
             try

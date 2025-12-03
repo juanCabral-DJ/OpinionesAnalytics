@@ -3,6 +3,8 @@ using OpinionesAnalytics.Application.Dtos;
 using OpinionesAnalytics.Application.Interfaces;
 using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Application.Result;
+using OpinionesAnalytics.Domain.Csv;
+using OpinionesAnalyticsAPI.DATA.Domain;
 using SWCE.Infraestructure.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,14 +17,24 @@ namespace OpinionesAnalytics.Application.Services
     public class OpinionHandlerServices : IOpinionesHandlerServices
     {
         private readonly IDwhRepository _dwhRepository;
+        private readonly IOpinionExtractor<WebReviews> _reviewsRepository;
+        private readonly IOpinionExtractor<Social_Comments> _socialCommentsRepository;
+        private readonly IOpinionExtractor<surveys> _surveysRepository;
         private readonly IConfiguration _configuration;
         private readonly ILoggerBase<OpinionHandlerServices> _logger;
 
-        public OpinionHandlerServices(IDwhRepository dwhRepository,
-                                     IConfiguration configuration,
-                                     ILoggerBase<OpinionHandlerServices> logger)
+        public OpinionHandlerServices(
+            IDwhRepository dwhRepository,
+            IOpinionExtractor<WebReviews> reviewsRepository,
+            IOpinionExtractor<Social_Comments> socialCommentsRepository,
+            IOpinionExtractor<surveys> surveysRepository, 
+            IConfiguration configuration,
+            ILoggerBase<OpinionHandlerServices> logger)
         {
             _dwhRepository = dwhRepository;
+            _reviewsRepository = reviewsRepository;
+            _socialCommentsRepository = socialCommentsRepository;
+            _surveysRepository = surveysRepository;
             _configuration = configuration;
             _logger = logger;
         }
@@ -36,7 +48,9 @@ namespace OpinionesAnalytics.Application.Services
 
                 DimDtos dimDtos = new DimDtos();
 
-                dimDtos.fileData = _configuration["ExternalSources:surveysCsv"];
+                dimDtos.SurveysCsvPath = _configuration["ExternalSources:SurveysCsvPath"];
+                dimDtos.ClientsCsvPath = _configuration["ExternalSources:ClienteCsv"];
+                dimDtos.ProductsCsvPath = _configuration["ExternalSources:ProductoCsv"];
 
                 serviceResult = await _dwhRepository.LoadDimsDataAsync(dimDtos);
 

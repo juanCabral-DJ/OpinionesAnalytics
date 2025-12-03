@@ -1,5 +1,4 @@
-﻿ 
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Domain.Csv;
 using OpinionesAnalytics.Domain.Csv.Base;
@@ -13,36 +12,36 @@ using System.Threading.Tasks;
 
 namespace OpinionesAnalytics.Persistence.Repositories.Csv
 {
-    public class SurveysRepository : IFileReaderRepository<surveys>
+    public class ClienteRepository : IFileReaderRepository<Clientes>
     {
-        private readonly ILoggerBase<SurveysRepository> _Logger;
+        private readonly ILoggerBase<ClienteRepository> _Logger;
         private readonly IConfiguration _configuration;
         private readonly string filepath;
 
-        public SurveysRepository(ILoggerBase<SurveysRepository> logger, IConfiguration config)
+        public ClienteRepository(ILoggerBase<ClienteRepository> logger, IConfiguration config)
         {
             _Logger = logger;
-            this.filepath = config["ExternalSources:surveysCsv"];
+            this.filepath = config["ExternalSources:ClienteCsv"];
         }
 
-        public async Task<IEnumerable<surveys>> ReadFileAsync(string filePath)
+        public async Task<IEnumerable<Clientes>> ReadFileAsync(string filePath)
         {
-            var surveys = new List<surveys>();
+             var cliente = new List<Clientes>();
             _Logger.LogInformation("Reading CSV file at path: {FilePath}", filePath);
 
             try
             {
 
-                surveys = await CsvReaderBase.LeerCsv<surveys>(filepath);
+                cliente = await CsvReaderBase.LeerCsv<Clientes>(filepath);
 
             }
             catch (Exception ex)
             {
-                surveys = null;
+                cliente = null;
                 _Logger.LogError("han ocurrido errores al extraer los datos", ex);
             }
 
-            return surveys;
+            return cliente;
 
         }
     }

@@ -2,7 +2,9 @@
 using OpinionesAnalytics.Application.Dtos;
 using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Application.Result;
+using OpinionesAnalytics.Domain.Csv;
 using OpinionesAnalytics.Domain.Dwh.Dimensiones;
+using OpinionesAnalytics.Domain.Repository;
 using OpinionesAnalytics.Persistence.Dwh.Context;
 using SWCE.Infraestructure.Logging;
 using System;
@@ -16,13 +18,22 @@ namespace OpinionesAnalytics.Persistence.Dwh
     public class DwhRepositories : IDwhRepository
     {
         private readonly DWHOpinionesContext _dwhContext;
-        private readonly IOpinionReader _opinionReader;
+        private readonly IFileReaderRepository<Clientes> _clientesReader;
+        private readonly IFileReaderRepository<Productos> _productosReader;
+        private readonly IFileReaderRepository<surveys> _surveysReader;
         private readonly ILoggerBase<DwhRepositories> _logger;
 
-        public DwhRepositories(DWHOpinionesContext dwhContext, IOpinionReader opinionExtractor, ILoggerBase<DwhRepositories> logger)
+        public DwhRepositories(
+            DWHOpinionesContext dwhContext,
+            IFileReaderRepository<Clientes> clientesReader,
+            IFileReaderRepository<Productos> productosReader,
+            IFileReaderRepository<surveys> surveysReader,
+            ILoggerBase<DwhRepositories> logger)
         {
             _dwhContext = dwhContext;
-            _opinionReader = opinionExtractor;
+            _clientesReader = clientesReader;
+            _productosReader = productosReader;
+            _surveysReader = surveysReader;
             _logger = logger;
         }
 
@@ -41,7 +52,9 @@ namespace OpinionesAnalytics.Persistence.Dwh
                     return result;
                 }
 
-                var rawOpinionsData = await _opinionReader.ExtractAsync(dimDtos.fileDataInventory);
+                var rawclientsData = await _clientesReader.ReadFileAsync(dimDtos.ClientsCsvPath);
+                var rawproductsData = await _productosReader.ReadFileAsync(dimDtos.ProductsCsvPath);
+                var rawOpinionsData = await _surveysReader.ReadFileAsync(dimDtos.SurveysCsvPath);
 
                 //Dimension fuente
                 var fuente = rawOpinionsData
@@ -58,26 +71,34 @@ namespace OpinionesAnalytics.Persistence.Dwh
                 await _dwhContext.SaveChangesAsync();
 
                 //Dimesion producto
-                var products = rawOpinionsData
-                    .Select(op => new { op.IdProducto}) // Asumiendo estas propiedades en el DTO
+                var products = rawproductsData
+                    .Select(op => new { op.IdProducto, op.Nombre, op.Categoria })
                     .Distinct()
                     .Where(p => p.IdProducto > 0)
                     .Select(p => new DimProductos
                     {
-                        Id_Producto_Original = p.IdProducto
+                    Id_Producto_Original = p.IdProducto,
+                    Nombre_Producto = p.Nombre,
+                    Categoria_Producto = p.Categoria  
                     }).ToArray();
 
                 await _dwhContext.Productos.AddRangeAsync(products);
                 await _dwhContext.SaveChangesAsync();
 
                 //Dimension cliente}
-                var clients = rawOpinionsData
-                    .Select(op => new { op.IdCliente}) // Asumiendo estas propiedades
+                var clients = rawclientsData
+                    .Select(op => new { op.IdCliente, op.Nombre, op.Email })
                     .Distinct()
                     .Where(c => c.IdCliente > 0)
                     .Select(c => new DimCLientes
                     {
-                        Id_Cliente_Original = c.IdCliente  
+                        Id_Cliente_Original = c.IdCliente,
+                        Nombre_Cliente = c.Nombre,  
+                        Pais = "Desconocido", // Asignar valor predeterminado
+                        Ciudad = "Desconocido", // Asignar valor predeterminado
+                        Tipo_Cliente = "Desconocido", // Asignar valor predeterminado
+                        Grupo_Edad = "Desconocido" // Asignar valor predeterminado
+
                     }).ToArray();
 
                 await _dwhContext.Clientes.AddRangeAsync(clients);
@@ -94,12 +115,13 @@ namespace OpinionesAnalytics.Persistence.Dwh
                         Dia = fe.Day,
                         Mes = fe.Month,
                         // La lógica de Trimestre, Semana.
-                        Trimestre = (fe.Month - 1) / 3 + 1, 
+                        Trimestre = (fe.Month - 1) / 3 + 1,
                         Fecha_Key = Convert.ToInt64(fe.Date.ToString("yyyyMMdd")),
                     }).ToArray();
 
                 await _dwhContext.Fechas.AddRangeAsync(datafecha);
                 await _dwhContext.SaveChangesAsync();
+ 
 
                 result.IsSuccess = true;
                 result.Message = "Carga de Dimensiones completada exitosamente.";

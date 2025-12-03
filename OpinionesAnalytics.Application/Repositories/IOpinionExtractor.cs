@@ -8,6 +8,6 @@ namespace OpinionesAnalytics.Application.Repositories
 {
     public interface IOpinionExtractor<Tentity> where Tentity : class
     {
-        Task<IEnumerable<Tentity>> ExtractAsync( string filepath = "");
+        Task<IEnumerable<Tentity>> ExtractAsync();
     }
 }

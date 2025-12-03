@@ -17,6 +17,7 @@ namespace OpinionesAnalytics.Application.Exceptions
             : base(message, innerException)
         {
         }
+
     }
     }
  
