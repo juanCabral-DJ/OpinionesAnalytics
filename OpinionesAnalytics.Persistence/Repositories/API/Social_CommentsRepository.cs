@@ -24,13 +24,13 @@ namespace OpinionesAnalytics.Persistence.Repositories.API
             _apiUrl = config["ExternalSources:Social_CommentsApi"];
         }
 
-        public async Task<IEnumerable<Social_Comments>> ExtractAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Social_Comments>> ExtractAsync(string filepath = "")
         {
             var comments = new List<Social_Comments>();
             try
             {
                 _logger.LogInformation("Extrayendo los datos desde la API");
-                comments = await _httpClient.GetFromJsonAsync<List<Social_Comments>>(_apiUrl, cancellationToken);
+                comments = await _httpClient.GetFromJsonAsync<List<Social_Comments>>(_apiUrl);
 
             }catch (Exception ex)
             {

@@ -20,13 +20,13 @@ namespace OpinionesAnalytics.Persistence.Repositories.Db
             this._context = context;
             _logger = logger;
         }
-        public async Task<IEnumerable<WebReviews>> ExtractAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<WebReviews>> ExtractAsync(string filepath = "")
         {
             var reviews = new List<WebReviews>();
             try
             {
                 _logger.LogInformation("Extrayendo los datos de las reseñas desde la base de datos");
-                reviews =  await _context.WebReviews.ToListAsync(cancellationToken);
+                reviews =  await _context.WebReviews.ToListAsync();
             }
             catch (Exception ex)
             {
@@ -38,5 +38,7 @@ namespace OpinionesAnalytics.Persistence.Repositories.Db
 
             return reviews;
         }
+
+        
     }
 }

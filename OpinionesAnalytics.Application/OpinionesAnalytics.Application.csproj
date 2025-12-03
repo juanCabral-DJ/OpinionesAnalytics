@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Result\" />
-    <Folder Include="Services\" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpinionesAnalytics.Domain\OpinionesAnalytics.Domain.csproj" />
+    <ProjectReference Include="..\OpinionesAnalytics.Infrastructure\OpinionesAnalytics.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

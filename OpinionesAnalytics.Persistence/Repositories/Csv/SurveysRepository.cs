@@ -24,7 +24,7 @@ namespace OpinionesAnalytics.Persistence.Repositories.Csv
             this.filepath = config["ExternalSources:surveysCsv"];
         }
 
-        public async Task<IEnumerable<surveys>> ExtractAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<surveys>> ExtractAsync(string filepath = "")
         {
             var survey = new List<surveys>();
             try
