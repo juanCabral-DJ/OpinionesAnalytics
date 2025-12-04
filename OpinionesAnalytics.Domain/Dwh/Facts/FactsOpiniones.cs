@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OpinionesAnalytics.Domain.Dwh.Facts
 {
+    [Table("Fact_Opiniones", Schema = "Fact")]
     public class FactsOpiniones
     {
+        [Key]
         public long Id_Opinion { get; set; }  
 
         // Claves Foráneas  

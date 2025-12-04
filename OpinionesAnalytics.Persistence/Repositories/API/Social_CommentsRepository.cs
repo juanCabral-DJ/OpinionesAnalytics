@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using OpinionesAnalytics.Application.Repositories;
+using OpinionesAnalytics.Infrastructure.Logging;
 using OpinionesAnalyticsAPI.DATA.Domain;
-using SWCE.Infraestructure.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

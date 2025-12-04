@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Domain.Csv;
+using OpinionesAnalytics.Infrastructure.Logging;
 using OpinionesAnalytics.Persistence.Repositories.Db.Context;
-using SWCE.Infraestructure.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,6 +5,7 @@ using OpinionesAnalytics.Application.Result;
 using OpinionesAnalytics.Domain.Csv;
 using OpinionesAnalytics.Domain.Dwh.Dimensiones;
 using OpinionesAnalytics.Domain.Repository;
+using OpinionesAnalytics.Infrastructure.Logging;
 using OpinionesAnalytics.Persistence.Dwh.Context;
 using System;
 using System.Collections.Generic;
@@ -66,22 +67,22 @@ namespace OpinionesAnalytics.Persistence.Dwh
                         Tipo_Fuente = (f.Contains("API") || f.Contains("Social")) ? "Digital" : "Interna"
                     }).ToArray();
 
-                await _dwhContext.Fuentes.AddRangeAsync(fuente);
+                await _dwhContext.Dim_Fuente.AddRangeAsync(fuente);
                 await _dwhContext.SaveChangesAsync();
 
                 //Dimesion producto
                 var products = rawproductsData
-                    .Select(op => new { op.IdProducto, op.Nombre, op.Categoria })
+                    .Select(op => new { op.IdProducto, op.Nombre, op.Categoría })
                     .Distinct()
                     .Where(p => p.IdProducto > 0)
                     .Select(p => new DimProductos
                     {
                     Id_Producto_Original = p.IdProducto,
-                    Nombre_Producto = p.Nombre,
-                    Categoria_Producto = p.Categoria  
+                    nombre_producto = p.Nombre,
+                    categoria_producto = p.Categoría  
                     }).ToArray();
 
-                await _dwhContext.Productos.AddRangeAsync(products);
+                await _dwhContext.Dim_Producto.AddRangeAsync(products);
                 await _dwhContext.SaveChangesAsync();
 
                 //Dimension cliente}
@@ -96,11 +97,11 @@ namespace OpinionesAnalytics.Persistence.Dwh
                         Pais = "Desconocido", // Asignar valor predeterminado
                         Ciudad = "Desconocido", // Asignar valor predeterminado
                         Tipo_Cliente = "Desconocido", // Asignar valor predeterminado
-                        Grupo_Edad = "Desconocido" // Asignar valor predeterminado
+                        Grupo_Edad = "Null" // Asignar valor predeterminado
 
                     }).ToArray();
 
-                await _dwhContext.Clientes.AddRangeAsync(clients);
+                await _dwhContext.Dim_Cliente.AddRangeAsync(clients);
                 await _dwhContext.SaveChangesAsync();
 
                 //Dimension fecha
@@ -110,15 +111,14 @@ namespace OpinionesAnalytics.Persistence.Dwh
                     .Select(fe => new DimFecha
                     {
                         Fecha_Completa = fe.Date,
-                        Anio = fe.Year,
+                        Año = fe.Year,
                         Dia = fe.Day,
                         Mes = fe.Month,
                         // La lógica de Trimestre, Semana.
-                        Trimestre = (fe.Month - 1) / 3 + 1,
-                        Fecha_Key = Convert.ToInt64(fe.Date.ToString("yyyyMMdd")),
+                        Trimestre = (fe.Month - 1) / 3 + 1
                     }).ToArray();
 
-                await _dwhContext.Fechas.AddRangeAsync(datafecha);
+                await _dwhContext.Dim_Fecha.AddRangeAsync(datafecha);
                 await _dwhContext.SaveChangesAsync();
  
 
@@ -143,11 +143,11 @@ namespace OpinionesAnalytics.Persistence.Dwh
             try
             {
                 // Limpieza de las dimensiones del DWH de Opiniones
-                await _dwhContext.Opiniones.ExecuteDeleteAsync();  
-                await _dwhContext.Clientes.ExecuteDeleteAsync();
-                await _dwhContext.Productos.ExecuteDeleteAsync();
-                await _dwhContext.Fuentes.ExecuteDeleteAsync();
-                await _dwhContext.Fechas.ExecuteDeleteAsync();
+                await _dwhContext.Fact_Opiniones.ExecuteDeleteAsync();  
+                await _dwhContext.Dim_Cliente.ExecuteDeleteAsync();
+                await _dwhContext.Dim_Producto.ExecuteDeleteAsync();
+                await _dwhContext.Dim_Fuente.ExecuteDeleteAsync();
+                await _dwhContext.Dim_Fecha.ExecuteDeleteAsync();
                  
 
                 result = new ServicesResult() { IsSuccess = true, Message = "La data de las dimensiones fueron limpiadas." };

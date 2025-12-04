@@ -16,13 +16,13 @@ namespace OpinionesAnalytics.Persistence.Dwh.Context
         }
 
         //Dimensiones
-        public DbSet<DimCLientes> Clientes { get; set; }
-        public DbSet<DimProductos> Productos { get; set; }
-        public DbSet<DimFuente> Fuentes { get; set; }
-        public DbSet<DimFecha> Fechas { get; set; }
+        public DbSet<DimCLientes> Dim_Cliente { get; set; }
+        public DbSet<DimProductos> Dim_Producto { get; set; }
+        public DbSet<DimFuente> Dim_Fuente { get; set; }
+        public DbSet<DimFecha> Dim_Fecha { get; set; }
 
         //Facts Table
-        public DbSet<FactsOpiniones> Opiniones { get; set; }
+        public DbSet<FactsOpiniones> Fact_Opiniones { get; set; }
 
     }
 }

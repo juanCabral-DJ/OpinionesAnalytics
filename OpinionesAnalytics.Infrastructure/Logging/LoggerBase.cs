@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
- 
 
-namespace SWCE.Infraestructure.Logging
+
+namespace OpinionesAnalytics.Infrastructure.Logging
 {
     public class LoggerBase<T> : ILoggerBase<T> where T : class
     {
@@ -23,7 +23,7 @@ namespace SWCE.Infraestructure.Logging
         {
             _Logger.LogError(mensaje);
         }
-        public void LogInformation(string mensaje, Object e)
+        public void LogInformation(string mensaje, object e)
         {
             _Logger.LogInformation(mensaje, e);
         }

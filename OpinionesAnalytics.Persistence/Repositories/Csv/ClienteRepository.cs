@@ -3,7 +3,7 @@ using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Domain.Csv;
 using OpinionesAnalytics.Domain.Csv.Base;
 using OpinionesAnalytics.Domain.Repository;
-using SWCE.Infraestructure.Logging;
+using OpinionesAnalytics.Infrastructure.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -4,6 +4,8 @@ using OpinionesAnalytics.Application.Interfaces;
 using OpinionesAnalytics.Application.Repositories;
 using OpinionesAnalytics.Application.Result;
 using OpinionesAnalytics.Domain.Csv;
+using OpinionesAnalytics.Domain.Repository;
+using OpinionesAnalytics.Infrastructure.Logging;
 using OpinionesAnalyticsAPI.DATA.Domain;
 using System;
 using System.Collections.Generic;
@@ -15,16 +17,16 @@ namespace OpinionesAnalytics.Application.Services
 {
     public class OpinionHandlerServices : IOpinionesHandlerServices
     {
-        private readonly IDwhRepository _dwhRepository;
+        private readonly IDwhRepository _dwhRepository; 
         private readonly IConfiguration _configuration;
         private readonly ILoggerBase<OpinionHandlerServices> _logger;
 
         public OpinionHandlerServices(
-            IDwhRepository dwhRepository,
+            IDwhRepository dwhRepository, 
             IConfiguration configuration,
             ILoggerBase<OpinionHandlerServices> logger)
         {
-            _dwhRepository = dwhRepository;
+            _dwhRepository = dwhRepository; 
             _configuration = configuration;
             _logger = logger;
         }
