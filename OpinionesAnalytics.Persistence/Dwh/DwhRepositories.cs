@@ -6,7 +6,6 @@ using OpinionesAnalytics.Domain.Csv;
 using OpinionesAnalytics.Domain.Dwh.Dimensiones;
 using OpinionesAnalytics.Domain.Repository;
 using OpinionesAnalytics.Persistence.Dwh.Context;
-using SWCE.Infraestructure.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
