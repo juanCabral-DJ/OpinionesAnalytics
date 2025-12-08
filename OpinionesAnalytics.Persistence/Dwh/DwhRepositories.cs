@@ -40,6 +40,8 @@ namespace OpinionesAnalytics.Persistence.Dwh
 
         private async Task BulkInsertAsync<T>(IEnumerable<T> data, string tableName)
         {
+            _logger.LogInformation("creando el metodo bulk insert para insertar a la bd");
+
             var list = data.ToList();
             if (!list.Any()) return;
             var dataTable = list.DataTable();
@@ -54,11 +56,31 @@ namespace OpinionesAnalytics.Persistence.Dwh
             }
         }
 
-        public async Task LoadClientesBulkAsync(IEnumerable<DimCLientes> c) => await BulkInsertAsync(c, "Dimension.Dim_Cliente");
-        public async Task LoadProductosBulkAsync(IEnumerable<DimProductos> p) => await BulkInsertAsync(p, "Dimension.Dim_Producto");
-        public async Task LoadFechaBulkAsync(IEnumerable<DimFecha> fe) => await BulkInsertAsync(fe, "Dimension.Dim_Fecha");
-        public async Task LoadFuentesBulkAsync(IEnumerable<DimFuente> fu) => await BulkInsertAsync(fu, "Dimension.Dim_Fuente");
-        public async Task LoadFactsBulkAsync(IEnumerable<FactsOpiniones> f) => await BulkInsertAsync(f, "Fact.Fact_Opiniones");
+        public async Task LoadClientesBulkAsync(IEnumerable<DimCLientes> c)
+        {
+            _logger.LogInformation($"Load clientes bulk");
+            await BulkInsertAsync(c, "Dimension.Dim_Cliente");
+        }
+        public async Task LoadProductosBulkAsync(IEnumerable<DimProductos> p)
+        {
+            _logger.LogInformation($"Load productos bulk");
+            await BulkInsertAsync(p, "Dimension.Dim_Producto");
+        }
+        public async Task LoadFechaBulkAsync(IEnumerable<DimFecha> fe)
+        {
+            _logger.LogInformation($"Load fechas bulk");
+            await BulkInsertAsync(fe, "Dimension.Dim_Fecha");
+        }
+        public async Task LoadFuentesBulkAsync(IEnumerable<DimFuente> fu)
+        {
+            _logger.LogInformation($"Load fuentes bulk");
+            await BulkInsertAsync(fu, "Dimension.Dim_Fuente");
+        }
+        public async Task LoadFactsBulkAsync(IEnumerable<FactsOpiniones> f)
+        {
+            _logger.LogInformation($"Load fact table bulk");
+            await BulkInsertAsync(f, "Fact.Fact_Opiniones");
+        }
 
         // Lecturas  
         public async Task<List<DimCLientes>> GetclientesAsync() => await _dwhContext.Dim_Cliente.AsNoTracking().ToListAsync();
@@ -73,6 +95,8 @@ namespace OpinionesAnalytics.Persistence.Dwh
 
             try
             {
+                _logger.LogInformation("Limoiando las tables de la bd");
+
                 // Limpieza de las dimensiones del DWH de Opiniones
                 await _dwhContext.Fact_Opiniones.ExecuteDeleteAsync();
                 await _dwhContext.Dim_Cliente.ExecuteDeleteAsync();
