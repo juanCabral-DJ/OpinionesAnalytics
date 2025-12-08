@@ -15,25 +15,14 @@ using System.Threading.Tasks;
 
 namespace OpinionesAnalytics.Persistence.Dwh
 {
-    public class DwhRepositories : IDwhRepository
-    {
         private readonly DWHOpinionesContext _dwhContext;
-        private readonly IFileReaderRepository<Clientes> _clientesReader;
-        private readonly IFileReaderRepository<Productos> _productosReader;
-        private readonly IFileReaderRepository<surveys> _surveysReader;
         private readonly ILoggerBase<DwhRepositories> _logger;
 
         public DwhRepositories(
             DWHOpinionesContext dwhContext,
-            IFileReaderRepository<Clientes> clientesReader,
-            IFileReaderRepository<Productos> productosReader,
-            IFileReaderRepository<surveys> surveysReader,
             ILoggerBase<DwhRepositories> logger)
         {
             _dwhContext = dwhContext;
-            _clientesReader = clientesReader;
-            _productosReader = productosReader;
-            _surveysReader = surveysReader;
             _logger = logger;
         }
 
@@ -51,89 +40,6 @@ namespace OpinionesAnalytics.Persistence.Dwh
                     _logger.LogError(result.Message);
                     return result;
                 }
-
-                var rawclientsData = await _clientesReader.ReadFileAsync(dimDtos.ClientsCsvPath);
-                var rawproductsData = await _productosReader.ReadFileAsync(dimDtos.ProductsCsvPath);
-                var rawOpinionsData = await _surveysReader.ReadFileAsync(dimDtos.SurveysCsvPath);
-
-                //Dimension fuente
-                var fuente = rawOpinionsData
-                    .Select(op => op.Fuente.Trim())
-                    .Distinct()
-                    .Where(f => !string.IsNullOrEmpty(f))
-                    .Select(f => new DimFuente
-                    {
-                        Nombre_Fuente = f,
-                        Tipo_Fuente = (f.Contains("API") || f.Contains("Social")) ? "Digital" : "Interna"
-                    }).ToArray();
-
-                await _dwhContext.Dim_Fuente.AddRangeAsync(fuente);
-                await _dwhContext.SaveChangesAsync();
-
-                //Dimesion producto
-                var products = rawproductsData
-                    .Select(op => new { op.IdProducto, op.Nombre, op.Categoría })
-                    .Distinct()
-                    .Where(p => p.IdProducto > 0)
-                    .Select(p => new DimProductos
-                    {
-                    Id_Producto_Original = p.IdProducto,
-                    nombre_producto = p.Nombre,
-                    categoria_producto = p.Categoría  
-                    }).ToArray();
-
-                await _dwhContext.Dim_Producto.AddRangeAsync(products);
-                await _dwhContext.SaveChangesAsync();
-
-                //Dimension cliente}
-                var clients = rawclientsData
-                    .Select(op => new { op.IdCliente, op.Nombre, op.Email })
-                    .Distinct()
-                    .Where(c => c.IdCliente > 0)
-                    .Select(c => new DimCLientes
-                    {
-                        Id_Cliente_Original = c.IdCliente,
-                        Nombre_Cliente = c.Nombre,  
-                        Pais = "Desconocido", // Asignar valor predeterminado
-                        Ciudad = "Desconocido", // Asignar valor predeterminado
-                        Tipo_Cliente = "Desconocido", // Asignar valor predeterminado
-                        Grupo_Edad = "Null" // Asignar valor predeterminado
-
-                    }).ToArray();
-
-                await _dwhContext.Dim_Cliente.AddRangeAsync(clients);
-                await _dwhContext.SaveChangesAsync();
-
-                //Dimension fecha
-                var datafecha = rawOpinionsData
-                    .Select(fe => fe.Fecha)
-                    .Distinct()
-                    .Select(fe => new DimFecha
-                    {
-                        Fecha_Completa = fe.Date,
-                        Año = fe.Year,
-                        Dia = fe.Day,
-                        Mes = fe.Month,
-                        // La lógica de Trimestre, Semana.
-                        Trimestre = (fe.Month - 1) / 3 + 1
-                    }).ToArray();
-
-                await _dwhContext.Dim_Fecha.AddRangeAsync(datafecha);
-                await _dwhContext.SaveChangesAsync();
- 
-
-                result.IsSuccess = true;
-                result.Message = "Carga de Dimensiones completada exitosamente.";
-   
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error loading DWH Dims data: {ex.Message}", ex);
-                result.IsSuccess = false;
-                result.Message = $"Error loading DWH Dims data: {ex.Message}";
-            }
-
-            return result;
         }
 
         private async Task<ServicesResult> CleanDimenssionTables()

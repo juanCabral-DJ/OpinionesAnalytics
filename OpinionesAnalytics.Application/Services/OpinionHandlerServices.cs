@@ -38,13 +38,7 @@ namespace OpinionesAnalytics.Application.Services
             {
                 _logger.LogInformation("Iniciando el procesamiento de datos de opiniones.");
 
-                DimDtos dimDtos = new DimDtos();
 
-                dimDtos.SurveysCsvPath = _configuration["ExternalSources:SurveysCsvPath"];
-                dimDtos.ClientsCsvPath = _configuration["ExternalSources:ClienteCsv"];
-                dimDtos.ProductsCsvPath = _configuration["ExternalSources:ProductoCsv"];
-
-                serviceResult = await _dwhRepository.LoadDimsDataAsync(dimDtos);
 
                 serviceResult.IsSuccess = true;
                 serviceResult.Message = "Procesamiento completado exitosamente.";
