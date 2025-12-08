@@ -151,7 +151,7 @@ namespace OpinionesAnalytics.Application.Services
                         .Select(f => f.Fuente_Key)
                         .FirstOrDefault();
 
-                    // Validaciones igual que en tu ejemplo cKey != -1
+                    
                     if (clienteKey != -1 && productoKey != -1 && fechaKey != 0 && fuenteKey != 0)
                     {
                         fact.Add(new FactsOpiniones
