@@ -132,6 +132,7 @@ namespace OpinionesAnalytics.Application.Services
 
                 foreach (var op in surveys)
                 {
+
                      
                     // Fecha
                     long fechaKey =  fechadb
