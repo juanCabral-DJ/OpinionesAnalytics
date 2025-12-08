@@ -14,10 +14,10 @@ namespace OpinionesAnalytics.Domain.Dwh.Dimensiones
         [Key]
         public long Cliente_Key { get; set; }  
         public int Id_Cliente_Original { get; set; }  
-        public string Nombre_Cliente { get; set; }  
-        public string Pais { get; set; } 
-        public string Ciudad { get; set; }  
-        public string Tipo_Cliente { get; set; }  
-        public string Grupo_Edad { get; set; }  
+        public string Nombre_Cliente { get; set; }
+        public string Pais { get; set; } = null;
+        public string Ciudad { get; set; } = null;
+        public string Tipo_Cliente { get; set; } = null;
+        public string Grupo_Edad { get; set; } = null;
     }
 }

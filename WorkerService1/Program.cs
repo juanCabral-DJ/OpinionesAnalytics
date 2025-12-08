@@ -32,7 +32,7 @@ options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IFileReaderRepository<surveys>, SurveysRepository>();
 builder.Services.AddScoped<IFileReaderRepository<Productos>, ProductoRepository>();
-builder.Services.AddScoped<IFileReaderRepository<Clientes>, ClienteRepository>();
+builder.Services.AddScoped<IFileReaderRepository<Clientes>, ClienteRepository>(); 
 builder.Services.AddScoped<IDwhRepository, DwhRepositories>(); 
 
 //Registro de dependencias para el services
