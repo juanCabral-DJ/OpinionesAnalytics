@@ -74,7 +74,6 @@ namespace OpinionesAnalytics.Application.Services
                         // La lógica de Trimestre 
                         Trimestre = (fe.Month - 1) / 3 + 1
                     }).ToArray();
-                await _dwhRepository.LoadFechaBulkAsync(dimFecha);
 
                 //Dimension clientes
                 var dimcliente = cliente.Select(c => new { c.IdCliente, c.Nombre, c.Email })
