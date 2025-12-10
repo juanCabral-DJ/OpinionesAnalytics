@@ -13,6 +13,7 @@ using OpinionesAnalytics.Persistence.Repositories.Csv;
 using OpinionesAnalytics.Persistence.Repositories.Db;
 using OpinionesAnalytics.Persistence.Repositories.Db.Context;
 using OpinionesAnalyticsAPI.DATA.Domain;
+using System.Net.Http.Json;
 using WorkerService1;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -28,11 +29,15 @@ builder.Services.AddDbContext<ReviewsContext>(options =>
 
 var connectionString = builder.Configuration["DWHConnectionString:DWHDB"];
 builder.Services.AddDbContextPool<DWHOpinionesContext>(options =>
-options.UseSqlServer(connectionString)); 
+options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddScoped<IFileReaderRepository<surveys>, SurveysRepository>();
 builder.Services.AddScoped<IFileReaderRepository<Productos>, ProductoRepository>();
 builder.Services.AddScoped<IFileReaderRepository<Clientes>, ClienteRepository>(); 
+builder.Services.AddScoped<IOpinionExtractor<Social_Comments>, Social_CommentsRepository>();
+builder.Services.AddScoped<IOpinionExtractor<WebReviews>, ReviewsRepository>();
 builder.Services.AddScoped<IDwhRepository, DwhRepositories>(); 
 
 //Registro de dependencias para el services

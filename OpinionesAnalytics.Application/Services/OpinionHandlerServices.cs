@@ -25,12 +25,16 @@ namespace OpinionesAnalytics.Application.Services
         private readonly IFileReaderRepository<Clientes> _clienteReader;
         private readonly IFileReaderRepository<Productos> _productoReader;
         private readonly IFileReaderRepository<surveys> _surveysReader; 
+        private readonly IOpinionExtractor<WebReviews> _webReviews;
+        private readonly IOpinionExtractor<Social_Comments> _comments;
         private readonly ILoggerBase<OpinionHandlerServices> _logger;
 
         public OpinionHandlerServices(
             IFileReaderRepository<surveys> surveysReader,
             IFileReaderRepository<Productos> productoReader,
             IFileReaderRepository<Clientes> clienteReader, 
+            IOpinionExtractor<WebReviews> webReviews,
+            IOpinionExtractor<Social_Comments> comments,
             IDwhRepository dwhRepository, 
             IConfiguration configuration,
             ILoggerBase<OpinionHandlerServices> logger)
@@ -38,6 +42,8 @@ namespace OpinionesAnalytics.Application.Services
             _clienteReader = clienteReader;
             _productoReader = productoReader; 
             _surveysReader = surveysReader;
+            _webReviews = webReviews;
+            _comments = comments;
             _dwhRepository = dwhRepository; 
             _configuration = configuration;
             _logger = logger;
@@ -56,14 +62,18 @@ namespace OpinionesAnalytics.Application.Services
                 var cliente = await _clienteReader.ReadFileAsync(dimdtos.ClientsCsvPath);
                 var productos = await _productoReader.ReadFileAsync(dimdtos.ProductsCsvPath);
                 var surveys = await _surveysReader.ReadFileAsync(dimdtos.SurveysCsvPath);
+                var webreviews = await _webReviews.ExtractAsync();
+                var socialcomments = await _comments.ExtractAsync();
 
                 _logger.LogInformation("iniciando la transformacion de los datos extraidos");
 
                 await _dwhRepository.CleanDimenssionTables();
 
                 //Dimension fecha
-
-                var dimFecha = surveys.Select(fe => fe.Fecha)
+                var dates = new List<DimFecha>();
+            
+                //Mapeo con csv
+                dates.AddRange(surveys.Select(fe => fe.Fecha)
                     .Distinct()
                     .Select(fe => new DimFecha
                     {
@@ -73,7 +83,41 @@ namespace OpinionesAnalytics.Application.Services
                         Mes = fe.Month,
                         // La lógica de Trimestre 
                         Trimestre = (fe.Month - 1) / 3 + 1
-                    }).ToArray();
+                    }).ToArray());
+
+                //mapeo con webreviews
+                dates.AddRange(webreviews.Select(fe => fe.Fecha)
+                   .Distinct()
+                   .Select(fe => new DimFecha
+                   {
+                       Fecha_Completa = fe.Date,
+                       Año = fe.Year,
+                       Dia = fe.Day,
+                       Mes = fe.Month,
+                       // La lógica de Trimestre 
+                       Trimestre = (fe.Month - 1) / 3 + 1
+                   }).ToArray());
+
+                //mapeo con socialcomments
+                dates.AddRange(socialcomments.Select(fe => fe.Fecha)
+                   .Distinct()
+                   .Select(fe => new DimFecha
+                   {
+                       Fecha_Completa = fe.Date,
+                       Año = fe.Year,
+                       Dia = fe.Day,
+                       Mes = fe.Month,
+                       // La lógica de Trimestre 
+                       Trimestre = (fe.Month - 1) / 3 + 1
+                   }).ToArray());
+
+                var dimfecha = dates
+                    .GroupBy(d => d.Fecha_Completa)
+                    .Select(g => g.First())
+                    .Where(d => d.Fecha_Completa != null)
+                    .ToArray();
+
+                await _dwhRepository.LoadFechaBulkAsync(dimfecha);
 
                 //Dimension clientes
                 var dimcliente = cliente.Select(c => new { c.IdCliente, c.Nombre, c.Email })
@@ -104,14 +148,41 @@ namespace OpinionesAnalytics.Application.Services
                 await _dwhRepository.LoadProductosBulkAsync(dimproducto);
 
                 //Dimension fuentes
-                var dimfuentes = surveys.Select(op => op.Fuente.Trim())
+                var fuentes = new List<DimFuente>();
+
+                //mapeo con surveys
+                fuentes.AddRange(surveys.Select(op => op.Fuente.Trim())
                     .Distinct()
                     .Where(f => !string.IsNullOrEmpty(f))
                     .Select(f => new DimFuente
                     {
                         Nombre_Fuente = f,
                         Tipo_Fuente = (f.Contains("API") || f.Contains("Social")) ? "Digital" : "Interna"
-                    }).ToArray();
+                    }).ToArray());
+
+                //mapeo con socialcomments
+                fuentes.AddRange(socialcomments.Select(op => op.Fuente.Trim())
+                    .Distinct()
+                    .Where(f => !string.IsNullOrEmpty(f))
+                    .Select(f => new DimFuente
+                    {
+                        Nombre_Fuente = f,
+                        Tipo_Fuente = "Social Media"
+                    }).ToArray());
+
+                //mapeo con webreviews
+                fuentes.Add(new DimFuente
+                {
+                    Nombre_Fuente = "WebReviews",
+                    Tipo_Fuente = "Web"
+                });
+
+                var dimfuentes = fuentes
+                    .GroupBy(f => f.Nombre_Fuente)
+                    .Select(g => g.First())
+                    .Where(f => !string.IsNullOrEmpty(f.Nombre_Fuente))
+                    .ToArray();
+
                 await _dwhRepository.LoadFuentesBulkAsync(dimfuentes);
 
                 _logger.LogInformation("recuperando datos para factstable");
@@ -127,8 +198,9 @@ namespace OpinionesAnalytics.Application.Services
                 var fechaDic = fechadb.ToDictionary(fe => fe.Fecha_Completa, x => x.Fecha_Key);
 
                 //Cargando fact table
-                var fact = new List<FactsOpiniones>();
+                var fact = new List<FactsOpiniones>(); 
 
+                // Procesando surveys
                 foreach (var op in surveys)
                 {
 
@@ -152,7 +224,7 @@ namespace OpinionesAnalytics.Application.Services
                         .FirstOrDefault();
 
                     
-                    if (clienteKey != -1 && productoKey != -1 && fechaKey != 0 && fuenteKey != 0)
+                    if (clienteKey != -1 && productoKey != -1)
                     {
                         fact.Add(new FactsOpiniones
                         {
@@ -169,6 +241,75 @@ namespace OpinionesAnalytics.Application.Services
                         });
                     }
                 }
+
+                //procesando socialcomments
+                foreach (var op in socialcomments)
+                {
+                    // Fecha
+                    long fechaKey = fechadb
+                        .Where(f => f.Fecha_Completa == op.Fecha)
+                        .Select(f => f.Fecha_Key)
+                        .FirstOrDefault();
+                    // Cliente
+                    long clienteKey = clienteDic.TryGetValue(op.IdCliente, out long ck) ? ck : -1;
+                    // Producto
+                    long productoKey = productoeDic.TryGetValue(op.IdProducto, out long pKey) ? pKey : -1;
+                    // Fuente   
+                    long fuenteKey = fuentedb
+                        .Where(f => f.Nombre_Fuente.Trim() == op.Fuente.Trim())
+                        .Select(f => f.Fuente_Key)
+                        .FirstOrDefault();
+                    if (clienteKey != -1 && productoKey != -1 )
+                    {
+                        fact.Add(new FactsOpiniones
+                        {
+                            Fecha_Key = fechaKey,
+                            Cliente_Key = clienteKey,
+                            Producto_Key = productoKey,
+                            Fuente_Key = fuenteKey,
+                            // Medidas 
+                            Sentimiento_Clasificado = ClassifyComment(op.Comentario),
+                            Calificacion = null,
+                            Contador_Opinion = 1
+                        });
+                    }
+                }
+
+                //procesando webreviews
+                foreach (var op in webreviews)
+                {
+                    // Fecha
+                    long fechaKey = fechadb
+                        .Where(f => f.Fecha_Completa == op.Fecha)
+                        .Select(f => f.Fecha_Key)
+                        .FirstOrDefault();
+                    // Cliente
+                    long clienteKey = clienteDic.TryGetValue(op.IdCliente, out long ck) ? ck : -1;
+                    // Producto
+                    long productoKey = productoeDic.TryGetValue(op.IdProducto, out long pKey) ? pKey : -1;
+                    // Fuente   
+                    long fuenteKey = fuentedb
+                        .Where(f => f.Nombre_Fuente.Trim() == "WebReviews")
+                        .Select(f => f.Fuente_Key)
+                        .FirstOrDefault();
+                    if (clienteKey != -1 && productoKey != -1)
+                    {
+                        fact.Add(new FactsOpiniones
+                        {
+                            Fecha_Key = fechaKey,
+                            Cliente_Key = clienteKey,
+                            Producto_Key = productoKey,
+                            Fuente_Key = fuenteKey,
+                            // Medidas 
+                            Sentimiento_Clasificado = ClassifyComment(op.Comentario),
+                            Calificacion = op.Rating,
+                            Contador_Opinion = 1
+                        });
+                    }
+                }
+
+                _logger.LogInformation("Cargando datos en la tabla de hechos.");
+
                 await _dwhRepository.LoadFactsBulkAsync(fact);
 
 
